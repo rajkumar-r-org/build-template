@@ -23,7 +23,7 @@ on:
             type: string
     secrets:
         azure-credentials:
-        required: true
+            required: true
 
 jobs:
     build:
@@ -40,9 +40,9 @@ jobs:
             id: maven-cache
             uses: actions/cache@v2
             with:
-            path: ~/.m2
-            key: ${{ runner.os }}-rajkumar-${{ hashFiles('**/pom.xml') }}
-            restore-keys: ${{ runner.os }}-rajkumar
+                path: ~/.m2
+                key: ${{ runner.os }}-rajkumar-${{ hashFiles('**/pom.xml') }}
+                restore-keys: ${{ runner.os }}-rajkumar
 
           - name: Display cache output
             run: |
@@ -56,24 +56,23 @@ jobs:
               name: ${{ inputs.artifact-name }}
               path: ${{ inputs.package-path }}
     
-      deploy:
+    deploy:
         runs-on: ubuntu-latest
         needs: build
         environment:
-          name: ${{ inputs.env-name }}
-          url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
+            name: ${{ inputs.env-name }}
+            url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
         steps:
-          - name: Download artifact from build job
-            uses: actions/download-artifact@v3
-            with:
-              name: ${{ inputs.artifact-name }}
-    
-          - name: Deploy to Azure Web App
-            id: deploy-to-webapp
-            uses: azure/webapps-deploy@v2
-            with:
-              app-name: ${{ inputs.app-name }}
-              slot-name: ${{ inputs.slot-name }}
-              package: '*.jar'
-              publish-profile: ${{ secrets.azure-credentials }}
+        - name: Download artifact from build job
+          uses: actions/download-artifact@v3
+          with:
+            name: ${{ inputs.artifact-name }}
+        - name: Deploy to Azure Web App
+          id: deploy-to-webapp
+          uses: azure/webapps-deploy@v2
+          with:
+            app-name: ${{ inputs.app-name }}
+            slot-name: ${{ inputs.slot-name }}
+            package: '*.jar'
+            publish-profile: ${{ secrets.azure-credentials }}
