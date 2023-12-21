@@ -6,6 +6,9 @@ on:
         java-version:
             required: true
             type: string
+        pom-path:
+            required: true
+            type: string
         app-name:
             required: true
             type: string
@@ -48,7 +51,7 @@ jobs:
             run: |
                 echo '${{ toJSON(steps.maven-cache.outputs) }}'
           - name: Build with Maven
-            run: mvn clean install
+            run: mvn -f ${{ inputs.pom-path }} clean install
     
           - name: Upload artifact for deployment job
             uses: actions/upload-artifact@v3
