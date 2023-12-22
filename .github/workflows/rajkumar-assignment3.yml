@@ -14,8 +14,10 @@ on:
                 required: true
                 type: string        
         secrets:
-          web-app-profile:
-            required: true
+            SONAR_TOKEN:
+                required: true
+            GITHUB_TOKEN:
+                required: true
 
 
 jobs:
