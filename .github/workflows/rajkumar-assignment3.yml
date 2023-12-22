@@ -11,7 +11,7 @@ on:
 
 jobs:
   codeql-analysis:
-    uses: rajkumar-r-org/build-template/.github/workflows/codeql/codeql-analysis.yml@main
+    uses: rajkumar-r-org/build-template/.github/workflows/codeql-analysis.yml@main
     name: CodeQL
     permissions:
         actions: read
@@ -19,7 +19,7 @@ jobs:
         contents: read
   
   sonar-scan:
-    uses: rajkumar-r-org/build-template/.github/workflows/sonar-scan/sonar-analysis.yml@main
+    uses: rajkumar-r-org/build-template/.github/workflows/sonar-analysis.yml@main
     name: Sonar-Scan
     with:
         SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
