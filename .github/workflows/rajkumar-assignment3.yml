@@ -5,7 +5,7 @@ on:
         secrets:
             SONAR_TOKEN:
                 required: true
-            github_token:
+            token_git:
                 required: true
 
 
@@ -23,7 +23,7 @@ jobs:
     name: Sonar-Scan
     with:
         SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
-        GITHUB_TOKEN: ${{secrets.github_token}}
+        GITHUB_TOKEN: ${{secrets.token_git}}
 
   build:
     name: Build

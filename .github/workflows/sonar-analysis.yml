@@ -4,7 +4,7 @@ on:
       secrets:
         SONAR_TOKEN:
           required: true
-        GITHUB_TOKEN:
+        token_git:
           required: true
         
       
@@ -44,7 +44,7 @@ jobs:
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
       - name: Build and analyze
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.token_git }}  # Needed to get PR information, if any
         shell: powershell
         run: |
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"rajkumar-r-org_dotnet-app" /o:"rajkumar-org" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
