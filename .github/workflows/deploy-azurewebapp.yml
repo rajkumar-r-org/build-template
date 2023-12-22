@@ -8,18 +8,15 @@ on:
             AZURE_WEBAPP_PACKAGE_PATH:
                 required: true
                 type: string
-                default: './'
-            DEPLOY_ENV:
-                required: true
-                type: string        
+                default: './'      
         secrets:
           web-app-profile:
             required: true
 
 jobs:
   deploy:
-    name: ${{inputs.DEPLOY_ENV}}
-    runs-on: windows-latest   
+    name: Deploy
+    runs-on: windows-latest
     steps:
     - name: 'Download build artifacts'
       uses: actions/download-artifact@v2
@@ -28,9 +25,30 @@ jobs:
         path: '${{ inputs.AZURE_WEBAPP_PACKAGE_PATH }}'
 
     - name: 'Run Azure webapp deploy'
+      id: DEV
       uses: azure/webapps-deploy@v2
       with: 
         app-name: ${{ inputs.AZURE_WEBAPP_NAME }} # Replace with your app name
-        slot-name: ${{ inputs.DEPLOY_ENV }}
+        slot-name: 'DEV'
+        publish-profile: ${{ secrets.web-app-profile  }} # Define secret variable in repository settings as per action documentation
+        package: '${{ inputs.AZURE_WEBAPP_PACKAGE_PATH }}'
+    
+    - name: 'Run Azure webapp deploy'
+      id: QA
+      if: steps.DEV.outcome == 'success'
+      uses: azure/webapps-deploy@v2
+      with: 
+        app-name: ${{ inputs.AZURE_WEBAPP_NAME }} # Replace with your app name
+        slot-name: 'QA'
+        publish-profile: ${{ secrets.web-app-profile  }} # Define secret variable in repository settings as per action documentation
+        package: '${{ inputs.AZURE_WEBAPP_PACKAGE_PATH }}'
+
+    - name: 'Run Azure webapp deploy'
+      id: PROD
+      if: steps.QA.outcome == 'success'
+      uses: azure/webapps-deploy@v2
+      with: 
+        app-name: ${{ inputs.AZURE_WEBAPP_NAME }} # Replace with your app name
+        slot-name: 'Production'
         publish-profile: ${{ secrets.web-app-profile  }} # Define secret variable in repository settings as per action documentation
         package: '${{ inputs.AZURE_WEBAPP_PACKAGE_PATH }}'

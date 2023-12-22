@@ -1,22 +1,11 @@
 name: Deploy .NET App Template
 
 on:
-    workflow_call:
-        inputs:
-            AZURE_WEBAPP_NAME:
-                required: true
-                type: string
-            AZURE_WEBAPP_PACKAGE_PATH:
-                required: true
-                type: string
-                default: './'
-            DEPLOY_ENV:
-                required: true
-                type: string        
+    workflow_call:       
         secrets:
             SONAR_TOKEN:
                 required: true
-            GITHUB_TOKEN:
+            github_token:
                 required: true
 
 
@@ -34,7 +23,7 @@ jobs:
     name: Sonar-Scan
     with:
         SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        GITHUB_TOKEN: ${{secrets.github_token}}
 
   build:
     name: Build
