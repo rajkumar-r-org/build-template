@@ -1,0 +1,37 @@
+name: CodeQL analysis
+
+on:
+  workflow_call:
+  
+  workflow_dispatch: 
+
+
+jobs:
+    codeql:
+      permissions:
+        actions: read
+        contents: read
+        security-events: write
+
+      strategy:
+        fail-fast: false
+        matrix:
+          language: [ 'csharp']
+
+      name: CodeQL
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v2
+        - name: Setup .NET
+          uses: actions/setup-dotnet@v3.2.0
+          with:
+            dotnet-version: '7.0.x'
+        - name: Init CodeQL
+          uses: github/codeql-action/init@v2
+          with:
+            languages: ${{ matrix.language }}
+        - name: Autobuild
+          uses: github/codeql-action/autobuild@v2
+        - name: Run CodeQL
+          uses: github/codeql-action/analyze@v2

@@ -1,0 +1,85 @@
+name: Deploy .NET App Template
+
+on:
+    workflow_call:
+        inputs:
+            AZURE_WEBAPP_NAME:
+                required: true
+                type: string
+            AZURE_WEBAPP_PACKAGE_PATH:
+                required: true
+                type: string
+                default: '.'
+            NUGET_VERSION:
+                required: true
+                type: string
+                default: '5.3.1'
+            DEPLOY_ENV:
+                required: true
+                type: string        
+        secrets:
+          web-app-profile:
+            required: true
+env:
+  AZURE_WEBAPP_NAME: dotnetappgithubactions    # set this to your application's name
+  AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
+  NUGET_VERSION: '5.3.1'           # set this to the dot net version to use
+  DEPLOY_ENV: 'production'
+
+jobs:
+  codeql-analysis:
+    uses: rajkumar-r-org/build-template/.github/workflows/codeql-analysis.yml@main
+    name: CodeQL
+    permissions:
+        actions: read
+        security-events: write
+        contents: read
+  
+  build:
+    runs-on: windows-latest
+    steps:
+
+    # checkout the repo
+    - uses: actions/checkout@master  
+    
+    - name: Install Nuget
+      uses: nuget/setup-nuget@v1
+      with:
+        nuget-version: ${{ inputs.NUGET_VERSION}}
+    - name: NuGet to restore dependencies as well as project-specific tools that are specified in the project file
+      run: nuget restore
+  
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.3.1
+      #with:
+      #  vs-version: "[16.4,16.5]"  #Version of Visual Studio to search; defaults to latest if not specified
+
+    - name: Run MSBuild
+      run: |
+        msbui-ld .\SampleWebApplication.sln /t:Publish /p:Configuration=Release /p:PublishDir=./SampleWebApplication/Publish
+
+    - name: 'Upload Artifact'
+      uses: actions/upload-artifact@v3
+      with:
+        name: 'webapp-artifact'
+        path: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}'
+
+  deploy-prod:
+    name: PROD
+    runs-on: windows-latest
+    needs: build
+      
+    steps:
+    - name: 'Download build artifacts'
+      uses: actions/download-artifact@v2
+      with:
+        name: 'webapp-artifact'
+        path: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}'
+    
+    - name: 'Run Azure webapp deploy'
+      uses: azure/webapps-deploy@v2
+      with: 
+        app-name: ${{ inputs.AZURE_WEBAPP_NAME }} # Replace with your app name
+        slot-name: ${{ inputs.DEPLOY_ENV }}
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_DOTNET  }} # Define secret variable in repository settings as per action documentation
+        package: '${{ inputs.AZURE_WEBAPP_PACKAGE_PATH }}/SampleWebApplication/'
