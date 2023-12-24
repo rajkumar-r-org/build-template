@@ -9,11 +9,6 @@ on:
         JIRA_USER:
             required: true
             type: string
-    secrets:
-        JIRA_API_TOKEN:
-            required: true
-        SONAR_TOKEN:
-            required: true
 
 jobs:
     JIRA:
