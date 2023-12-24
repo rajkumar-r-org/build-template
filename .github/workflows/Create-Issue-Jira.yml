@@ -1,0 +1,52 @@
+name: Create Issue in JIRA
+
+on:
+  workflow_call:
+    inputs:
+        JIRA_BASE_URL:
+            required: true
+            type: string
+        JIRA_USER:
+            required: true
+            type: string
+    secrets:
+        JIRA_API_TOKEN:
+            required: true
+        SONAR_TOKEN:
+            required: true
+
+jobs:
+    JIRA:
+      name: Create-Issue-JIRA
+      runs-on: ubuntu-latest
+      outputs:
+        status: ${{ steps.sonar-status.outputs.sonar_status }}
+      steps:
+        - name: Sonar Status
+          id: sonar-status
+          run: |
+            SONAR_STATUS=$(curl --request GET \
+            --url 'https://sonarcloud.io/api/qualitygates/project_status?projectKey=rajkumar-r-org_dotnet-app&branch=feature%2Fapp' \
+            --header "SonarQubeAuthToken: ${{secrets.SONAR_TOKEN}}")
+            status=$(echo $SONAR_STATUS | jq '.projectStatus.status' -r)
+            echo "::set-output name=sonar_status::$status"
+            echo $status
+      
+        - name: Login
+          uses: atlassian/gajira-login@v3
+          env:
+            JIRA_BASE_URL: "https://${{env.JIRA_BASE_URL}}.atlassian.net/"
+            JIRA_USER_EMAIL: "${{env.JIRA_USER}}"
+            JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+
+        - name: Create Jira Ticket
+          id: create_jira_ticket
+          if: steps.sonar-status.outputs.sonar_status != 'OK'
+          uses: atlassian/gajira-create@v3
+          with:
+            project: 'GAR'
+            issuetype: 'Issue'
+            summary: 'SonarQube Quality Gate Failed'
+            description: 'This issue was automatically created from GitHub Actions. Sonar quality gate status: ${{ steps.sonar-status.outputs.sonar_status }}'
+        - name: Log created issue
+          run: echo "Issue ${{ steps.create_jira_ticket.outputs.issue }} was created"
