@@ -12,7 +12,7 @@ on:
         type: string
         default: 'rajkumar-r-org_dotnet-app'
       sources:
-        required: true
+        required: false
         type: string
         default: '.'
 
@@ -30,10 +30,8 @@ jobs:
       with:
         projectBaseDir: dotnet-app
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        args: >
+        args:
           -Dsonar.organization= ${{inputs.organization}}
           -Dsonar.projectKey= ${{inputs.projectKey}}
-          -Dsonar.sources=${{inputs.sources}}
           -Dsonar.verbose=true
