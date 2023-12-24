@@ -27,9 +27,10 @@ jobs:
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
       continue-on-error: true
+
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         args:
-          -Dsonar.organization= ${{inputs.organization}}
-          -Dsonar.projectKey= ${{inputs.projectKey}}
+          -Dsonar.organization= rajkumar-org
+          -Dsonar.projectKey= rajkumar-r-org_dotnet-app
           -Dsonar.verbose=true
