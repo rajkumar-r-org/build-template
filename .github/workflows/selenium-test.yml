@@ -1,4 +1,4 @@
-name: Vaishakh Build and deploy DOTNET app - Selenium Scraper
+name: Selenium Test
 on:
   workflow_call:
     inputs:
