@@ -1,0 +1,50 @@
+name: Vaishakh Build and deploy DOTNET app - Selenium Scraper
+on:
+  workflow_call:
+    inputs:
+      website:
+        type: string
+        required: true
+      title:
+        type: boolean
+        required: false
+        default: false
+      estring:
+        type: string
+        required: false
+        default: ''
+
+  
+jobs:
+  Selenium-Test:
+    runs-on: ubuntu-latest
+    name: Selenium Scraper
+        
+    steps:
+      - name: Repo checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install necessary packages
+        run: |
+          sudo apt update
+          sudo apt install -y chromium-browser
+          python -m pip install --upgrade pip
+          pip install webdriver-manager selenium
+
+      - name: Run the scraping script
+        run: |
+          python ./.github/scripts/selenium_test.py ${{ inputs.website }} ${{ inputs.title }} ${{ inputs.estring }}
+        continue-on-error: true
+
+      - name: Check Selenium scrape status
+        if: ${{ failure() }}
+        run: echo "Selenium Test failed"
+
+      - name: Check Selenium scrape status
+        if: ${{ success() }}
+        run: echo "Selenium Test completed"
