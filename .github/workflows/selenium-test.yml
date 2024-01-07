@@ -6,13 +6,12 @@ on:
         type: string
         required: true
       title:
-        type: boolean
-        required: false
-        default: false
+        type: string
+        required: true
       estring:
         type: string
-        required: false
-        default: ''
+        required: true
+
 
   
 jobs:
